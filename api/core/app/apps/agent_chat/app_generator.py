@@ -6,6 +6,7 @@ from collections.abc import Generator, Mapping
 from typing import Any, Literal, Union, overload
 
 from flask import Flask, current_app
+from services.conversation_service import ConversationService
 from pydantic import ValidationError
 
 from configs import dify_config
@@ -95,8 +96,11 @@ class AgentChatAppGenerator(MessageBasedAppGenerator):
 
         # get conversation
         conversation = None
-        if args.get("conversation_id"):
-            conversation = self._get_conversation_by_user(app_model, args.get("conversation_id", ""), user)
+        conversation_id = args.get("conversation_id")
+        if conversation_id:
+            conversation = ConversationService.get_conversation(
+                app_model=app_model, conversation_id=conversation_id, user=user
+            )
 
         # get app model config
         app_model_config = self._get_app_model_config(app_model=app_model, conversation=conversation)
